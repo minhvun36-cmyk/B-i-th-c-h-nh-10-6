@@ -1,0 +1,325 @@
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Windows.Forms;
+
+namespace Bai53
+{
+    public partial class Form1 : Form
+    {
+        TextBox txtProductId;
+        TextBox txtProductName;
+        TextBox txtUnitPrice;
+        TextBox txtQuantity;
+        TextBox txtSearch;
+
+        ComboBox cboCategory;
+
+        Button btnAdd;
+        Button btnEdit;
+        Button btnDelete;
+        Button btnSearch;
+
+        DataGridView dgvProducts;
+
+        List<Product> products = new List<Product>();
+        BindingSource bindingSource = new BindingSource();
+
+        public Form1()
+        {
+            InitializeComponent();
+            TaoGiaoDien();
+            LoadData();
+        }
+
+        private void TaoGiaoDien()
+        {
+            Text = "Quản lý sản phẩm";
+            Size = new Size(950, 600);
+            StartPosition = FormStartPosition.CenterScreen;
+            Font = new Font("Arial", 10);
+
+            Label title = new Label();
+            title.Text = "QUẢN LÝ DANH SÁCH SẢN PHẨM";
+            title.Font = new Font("Arial", 18, FontStyle.Bold);
+            title.AutoSize = true;
+            title.Location = new Point(280, 20);
+            Controls.Add(title);
+
+            GroupBox grpInfo = new GroupBox();
+            grpInfo.Text = "Thông tin sản phẩm";
+            grpInfo.Location = new Point(30, 70);
+            grpInfo.Size = new Size(890, 150);
+            Controls.Add(grpInfo);
+
+            Label l1 = new Label();
+            l1.Text = "Mã SP:";
+            l1.Location = new Point(20, 30);
+            l1.AutoSize = true;
+            grpInfo.Controls.Add(l1);
+
+            txtProductId = new TextBox();
+            txtProductId.Location = new Point(100, 27);
+            txtProductId.Size = new Size(200, 25);
+            grpInfo.Controls.Add(txtProductId);
+
+            Label l2 = new Label();
+            l2.Text = "Tên SP:";
+            l2.Location = new Point(350, 30);
+            l2.AutoSize = true;
+            grpInfo.Controls.Add(l2);
+
+            txtProductName = new TextBox();
+            txtProductName.Location = new Point(430, 27);
+            txtProductName.Size = new Size(250, 25);
+            grpInfo.Controls.Add(txtProductName);
+
+            Label l3 = new Label();
+            l3.Text = "Đơn giá:";
+            l3.Location = new Point(20, 75);
+            l3.AutoSize = true;
+            grpInfo.Controls.Add(l3);
+
+            txtUnitPrice = new TextBox();
+            txtUnitPrice.Location = new Point(100, 72);
+            txtUnitPrice.Size = new Size(200, 25);
+            grpInfo.Controls.Add(txtUnitPrice);
+
+            Label l4 = new Label();
+            l4.Text = "Số lượng:";
+            l4.Location = new Point(350, 75);
+            l4.AutoSize = true;
+            grpInfo.Controls.Add(l4);
+
+            txtQuantity = new TextBox();
+            txtQuantity.Location = new Point(430, 72);
+            txtQuantity.Size = new Size(250, 25);
+            grpInfo.Controls.Add(txtQuantity);
+
+            Label l5 = new Label();
+            l5.Text = "Danh mục:";
+            l5.Location = new Point(20, 115);
+            l5.AutoSize = true;
+            grpInfo.Controls.Add(l5);
+
+            cboCategory = new ComboBox();
+            cboCategory.Location = new Point(100, 112);
+            cboCategory.Size = new Size(200, 25);
+            cboCategory.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboCategory.Items.Add("Điện thoại");
+            cboCategory.Items.Add("Laptop");
+            cboCategory.Items.Add("Phụ kiện");
+            cboCategory.SelectedIndex = 0;
+            grpInfo.Controls.Add(cboCategory);
+
+            btnAdd = new Button();
+            btnAdd.Text = "Thêm";
+            btnAdd.Location = new Point(700, 25);
+            btnAdd.Size = new Size(80, 35);
+            btnAdd.Click += btnAdd_Click;
+            grpInfo.Controls.Add(btnAdd);
+
+            btnEdit = new Button();
+            btnEdit.Text = "Sửa";
+            btnEdit.Location = new Point(700, 70);
+            btnEdit.Size = new Size(80, 35);
+            btnEdit.Click += btnEdit_Click;
+            grpInfo.Controls.Add(btnEdit);
+
+            btnDelete = new Button();
+            btnDelete.Text = "Xóa";
+            btnDelete.Location = new Point(800, 25);
+            btnDelete.Size = new Size(70, 35);
+            btnDelete.Click += btnDelete_Click;
+            grpInfo.Controls.Add(btnDelete);
+
+            Label lblSearch = new Label();
+            lblSearch.Text = "Tìm tên:";
+            lblSearch.Location = new Point(30, 245);
+            lblSearch.AutoSize = true;
+            Controls.Add(lblSearch);
+
+            txtSearch = new TextBox();
+            txtSearch.Location = new Point(100, 242);
+            txtSearch.Size = new Size(250, 25);
+            Controls.Add(txtSearch);
+
+            btnSearch = new Button();
+            btnSearch.Text = "Tìm kiếm";
+            btnSearch.Location = new Point(370, 240);
+            btnSearch.Size = new Size(100, 30);
+            btnSearch.Click += btnSearch_Click;
+            Controls.Add(btnSearch);
+
+            dgvProducts = new DataGridView();
+            dgvProducts.Location = new Point(30, 290);
+            dgvProducts.Size = new Size(890, 240);
+            dgvProducts.AutoGenerateColumns = true;
+            dgvProducts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvProducts.MultiSelect = false;
+            dgvProducts.ReadOnly = true;
+            dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvProducts.CellClick += dgvProducts_CellClick;
+            Controls.Add(dgvProducts);
+        }
+
+        private void LoadData()
+        {
+            products.Add(new Product("SP01", "iPhone 15", 20000000, 5, "Điện thoại"));
+            products.Add(new Product("SP02", "Dell Inspiron", 18000000, 3, "Laptop"));
+            products.Add(new Product("SP03", "Chuột Logitech", 500000, 10, "Phụ kiện"));
+
+            bindingSource.DataSource = products;
+            dgvProducts.DataSource = bindingSource;
+        }
+
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            decimal price;
+            int quantity;
+
+            if (!decimal.TryParse(txtUnitPrice.Text, out price) ||
+                !int.TryParse(txtQuantity.Text, out quantity))
+            {
+                MessageBox.Show("Đơn giá hoặc số lượng không hợp lệ!");
+                return;
+            }
+
+            Product product = new Product(
+                txtProductId.Text,
+                txtProductName.Text,
+                price,
+                quantity,
+                cboCategory.Text
+            );
+
+            products.Add(product);
+            RefreshGrid();
+            ClearInput();
+        }
+
+        private void btnEdit_Click(object sender, EventArgs e)
+        {
+            if (dgvProducts.CurrentRow == null)
+                return;
+
+            Product product = dgvProducts.CurrentRow.DataBoundItem as Product;
+
+            if (product == null)
+                return;
+
+            decimal price;
+            int quantity;
+
+            if (!decimal.TryParse(txtUnitPrice.Text, out price) ||
+                !int.TryParse(txtQuantity.Text, out quantity))
+            {
+                MessageBox.Show("Dữ liệu không hợp lệ!");
+                return;
+            }
+
+            product.ProductId = txtProductId.Text;
+            product.ProductName = txtProductName.Text;
+            product.UnitPrice = price;
+            product.Quantity = quantity;
+            product.Category = cboCategory.Text;
+
+            RefreshGrid();
+            ClearInput();
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            if (dgvProducts.CurrentRow == null)
+                return;
+
+            Product product = dgvProducts.CurrentRow.DataBoundItem as Product;
+
+            if (product == null)
+                return;
+
+            DialogResult result = MessageBox.Show(
+                "Bạn có chắc muốn xóa sản phẩm này?",
+                "Xác nhận",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
+
+            if (result == DialogResult.Yes)
+            {
+                products.Remove(product);
+                RefreshGrid();
+                ClearInput();
+            }
+        }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            string keyword = txtSearch.Text.Trim().ToLower();
+
+            var result = products
+                .Where(p => p.ProductName.ToLower().Contains(keyword))
+                .ToList();
+
+            bindingSource.DataSource = result;
+            dgvProducts.DataSource = bindingSource;
+        }
+
+        private void dgvProducts_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0)
+                return;
+
+            Product product = dgvProducts.Rows[e.RowIndex].DataBoundItem as Product;
+
+            if (product == null)
+                return;
+
+            txtProductId.Text = product.ProductId;
+            txtProductName.Text = product.ProductName;
+            txtUnitPrice.Text = product.UnitPrice.ToString();
+            txtQuantity.Text = product.Quantity.ToString();
+            cboCategory.Text = product.Category;
+        }
+
+        private void RefreshGrid()
+        {
+            bindingSource.DataSource = null;
+            bindingSource.DataSource = products;
+            dgvProducts.DataSource = bindingSource;
+        }
+
+        private void ClearInput()
+        {
+            txtProductId.Clear();
+            txtProductName.Clear();
+            txtUnitPrice.Clear();
+            txtQuantity.Clear();
+            cboCategory.SelectedIndex = 0;
+        }
+    }
+
+    public class Product
+    {
+        public string ProductId { get; set; }
+        public string ProductName { get; set; }
+        public decimal UnitPrice { get; set; }
+        public int Quantity { get; set; }
+        public string Category { get; set; }
+
+        public Product(
+            string productId,
+            string productName,
+            decimal unitPrice,
+            int quantity,
+            string category)
+        {
+            ProductId = productId;
+            ProductName = productName;
+            UnitPrice = unitPrice;
+            Quantity = quantity;
+            Category = category;
+        }
+    }
+}
