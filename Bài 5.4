@@ -1,0 +1,316 @@
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace Bai54
+{
+    public partial class Form1 : Form
+    {
+        SplitContainer split;
+        TreeView tvDepartments;
+        ListView lsvEmployees;
+        ComboBox cboView;
+        ImageList imageList;
+
+        List<Employee> employees = new List<Employee>();
+
+        public Form1()
+        {
+            InitializeComponent();
+            TaoGiaoDien();
+            TaoDuLieu();
+            TaoCay();
+            LoadEmployees("Công ty");
+        }
+
+        private void TaoGiaoDien()
+        {
+            Text = "Quản lý nhân viên";
+            Size = new Size(950, 600);
+            StartPosition = FormStartPosition.CenterScreen;
+            Font = new Font("Arial", 10);
+
+            split = new SplitContainer();
+            split.Dock = DockStyle.Fill;
+            split.SplitterDistance = 280;
+            Controls.Add(split);
+
+            tvDepartments = new TreeView();
+            tvDepartments.Dock = DockStyle.Fill;
+            tvDepartments.AfterSelect += tvDepartments_AfterSelect;
+            split.Panel1.Controls.Add(tvDepartments);
+
+            Panel panelRight = new Panel();
+            panelRight.Dock = DockStyle.Fill;
+            split.Panel2.Controls.Add(panelRight);
+
+            Label title = new Label();
+            title.Text = "DANH SÁCH NHÂN VIÊN";
+            title.Font = new Font("Arial", 16, FontStyle.Bold);
+            title.AutoSize = true;
+            title.Location = new Point(20, 15);
+            panelRight.Controls.Add(title);
+
+            Label lblView = new Label();
+            lblView.Text = "Chế độ xem:";
+            lblView.Location = new Point(20, 55);
+            lblView.AutoSize = true;
+            panelRight.Controls.Add(lblView);
+
+            cboView = new ComboBox();
+            cboView.Location = new Point(110, 52);
+            cboView.Size = new Size(150, 25);
+            cboView.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            cboView.Items.Add("Details");
+            cboView.Items.Add("LargeIcon");
+            cboView.Items.Add("SmallIcon");
+            cboView.Items.Add("Tile");
+
+            cboView.SelectedIndex = 0;
+            cboView.SelectedIndexChanged += cboView_SelectedIndexChanged;
+            panelRight.Controls.Add(cboView);
+
+            lsvEmployees = new ListView();
+            lsvEmployees.Location = new Point(20, 90);
+            lsvEmployees.Size = new Size(610, 430);
+            lsvEmployees.View = View.Details;
+            lsvEmployees.FullRowSelect = true;
+            lsvEmployees.GridLines = true;
+            lsvEmployees.LargeImageList = imageList;
+            lsvEmployees.SmallImageList = imageList;
+            lsvEmployees.Dock = DockStyle.Bottom;
+
+            lsvEmployees.Columns.Add("Mã NV", 100);
+            lsvEmployees.Columns.Add("Họ Tên", 180);
+            lsvEmployees.Columns.Add("Chức vụ", 150);
+            lsvEmployees.Columns.Add("Ngày vào làm", 130);
+
+            panelRight.Controls.Add(lsvEmployees);
+
+            imageList = new ImageList();
+            imageList.ImageSize = new Size(32, 32);
+
+            Bitmap img = new Bitmap(32, 32);
+
+            using (Graphics g = Graphics.FromImage(img))
+            {
+                g.Clear(Color.LightBlue);
+                g.DrawEllipse(Pens.Black, 5, 5, 22, 22);
+            }
+
+            imageList.Images.Add(img);
+
+            lsvEmployees.LargeImageList = imageList;
+            lsvEmployees.SmallImageList = imageList;
+        }
+
+        private void TaoDuLieu()
+        {
+            employees.Add(new Employee(
+                "NV01",
+                "Nguyễn Văn An",
+                "Trưởng phòng",
+                "01/01/2020",
+                "Kinh doanh",
+                "Nhóm 1"
+            ));
+
+            employees.Add(new Employee(
+                "NV02",
+                "Trần Văn Bình",
+                "Nhân viên",
+                "15/03/2021",
+                "Kinh doanh",
+                "Nhóm 1"
+            ));
+
+            employees.Add(new Employee(
+                "NV03",
+                "Lê Thị Hoa",
+                "Nhân viên",
+                "10/06/2022",
+                "Kinh doanh",
+                "Nhóm 2"
+            ));
+
+            employees.Add(new Employee(
+                "NV04",
+                "Phạm Minh Đức",
+                "Trưởng phòng",
+                "05/02/2019",
+                "Kỹ thuật",
+                "Nhóm 1"
+            ));
+
+            employees.Add(new Employee(
+                "NV05",
+                "Hoàng Văn Nam",
+                "Nhân viên",
+                "20/08/2023",
+                "Kỹ thuật",
+                "Nhóm 1"
+            ));
+
+            employees.Add(new Employee(
+                "NV06",
+                "Đỗ Thị Lan",
+                "Nhân viên",
+                "12/09/2022",
+                "Kỹ thuật",
+                "Nhóm 2"
+            ));
+
+            employees.Add(new Employee(
+                "NV07",
+                "Nguyễn Thị Mai",
+                "Kế toán",
+                "01/04/2021",
+                "Tài chính",
+                "Nhóm 1"
+            ));
+        }
+
+        private void TaoCay()
+        {
+            tvDepartments.Nodes.Clear();
+
+            TreeNode root = new TreeNode("Công ty");
+            root.Tag = "Công ty";
+
+            TreeNode kinhDoanh = new TreeNode("Phòng Kinh doanh");
+            kinhDoanh.Tag = "Kinh doanh";
+
+            kinhDoanh.Nodes.Add(new TreeNode("Nhóm 1"));
+            kinhDoanh.Nodes.Add(new TreeNode("Nhóm 2"));
+
+            TreeNode kyThuat = new TreeNode("Phòng Kỹ thuật");
+            kyThuat.Tag = "Kỹ thuật";
+
+            kyThuat.Nodes.Add(new TreeNode("Nhóm 1"));
+            kyThuat.Nodes.Add(new TreeNode("Nhóm 2"));
+
+            TreeNode taiChinh = new TreeNode("Phòng Tài chính");
+            taiChinh.Tag = "Tài chính";
+
+            taiChinh.Nodes.Add(new TreeNode("Nhóm 1"));
+
+            root.Nodes.Add(kinhDoanh);
+            root.Nodes.Add(kyThuat);
+            root.Nodes.Add(taiChinh);
+
+            tvDepartments.Nodes.Add(root);
+            root.Expand();
+        }
+
+        private void tvDepartments_AfterSelect(
+            object sender,
+            TreeViewEventArgs e)
+        {
+            if (e.Node.Parent == null)
+            {
+                LoadEmployees("Công ty");
+                return;
+            }
+
+            if (e.Node.Parent.Parent == null)
+            {
+                LoadEmployees(e.Node.Tag.ToString());
+                return;
+            }
+
+            string department = e.Node.Parent.Tag.ToString();
+            string group = e.Node.Text;
+
+            LoadEmployees(department, group);
+        }
+
+        private void LoadEmployees(string department)
+        {
+            lsvEmployees.Items.Clear();
+
+            foreach (Employee emp in employees)
+            {
+                if (emp.Department == department)
+                {
+                    AddEmployee(emp);
+                }
+            }
+        }
+
+        private void LoadEmployees(string department, string group)
+        {
+            lsvEmployees.Items.Clear();
+
+            foreach (Employee emp in employees)
+            {
+                if (emp.Department == department &&
+                    emp.Group == group)
+                {
+                    AddEmployee(emp);
+                }
+            }
+        }
+
+        private void AddEmployee(Employee emp)
+        {
+            ListViewItem item = new ListViewItem(
+                emp.Id,
+                0
+            );
+
+            item.SubItems.Add(emp.Name);
+            item.SubItems.Add(emp.Position);
+            item.SubItems.Add(emp.StartDate);
+
+            lsvEmployees.Items.Add(item);
+        }
+
+        private void cboView_SelectedIndexChanged(
+            object sender,
+            EventArgs e)
+        {
+            if (cboView.SelectedIndex == 0)
+                lsvEmployees.View = View.Details;
+
+            if (cboView.SelectedIndex == 1)
+                lsvEmployees.View = View.LargeIcon;
+
+            if (cboView.SelectedIndex == 2)
+                lsvEmployees.View = View.SmallIcon;
+
+            if (cboView.SelectedIndex == 3)
+                lsvEmployees.View = View.Tile;
+        }
+    }
+
+    public class Employee
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Position { get; set; }
+        public string StartDate { get; set; }
+        public string Department { get; set; }
+        public string Group { get; set; }
+
+        public Employee(
+            string id,
+            string name,
+            string position,
+            string startDate,
+            string department,
+            string group)
+        {
+            Id = id;
+            Name = name;
+            Position = position;
+            StartDate = startDate;
+            Department = department;
+            Group = group;
+        }
+    }
+}
+
+
+
