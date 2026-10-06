@@ -1,0 +1,208 @@
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace Bai511
+{
+    public partial class Form1 : Form
+    {
+        TextBox txtUsername;
+        TextBox txtPassword;
+        TextBox txtConfirmPassword;
+
+        DateTimePicker dtpBirthDate;
+
+        RadioButton rdoNam;
+        RadioButton rdoNu;
+
+        CheckBox chkTerms;
+
+        Button btnDangKy;
+        Button btnLamMoi;
+
+        ErrorProvider epCheck;
+
+        public Form1()
+        {
+            InitializeComponent();
+            TaoGiaoDien();
+        }
+
+        private void TaoGiaoDien()
+        {
+            Text = "Đăng ký tài khoản";
+            Size = new Size(600, 480);
+            StartPosition = FormStartPosition.CenterScreen;
+            Font = new Font("Arial", 10);
+
+            Label title = new Label();
+            title.Text = "ĐĂNG KÝ TÀI KHOẢN";
+            title.Font = new Font("Arial", 18, FontStyle.Bold);
+            title.AutoSize = true;
+            title.Location = new Point(170, 25);
+            Controls.Add(title);
+
+            Label[] lb = {
+        new Label() { Text = "Tên đăng nhập:", Location = new Point(70, 90), AutoSize = true },
+        new Label() { Text = "Mật khẩu:", Location = new Point(70, 135), AutoSize = true },
+        new Label() { Text = "Xác nhận mật khẩu:", Location = new Point(70, 180), AutoSize = true },
+        new Label() { Text = "Ngày sinh:", Location = new Point(70, 225), AutoSize = true },
+        new Label() { Text = "Giới tính:", Location = new Point(70, 270), AutoSize = true }
+    };
+
+            foreach (Label x in lb)
+                Controls.Add(x);
+
+            txtUsername = new TextBox();
+            txtPassword = new TextBox();
+            txtConfirmPassword = new TextBox();
+
+            TextBox[] txt = { txtUsername, txtPassword, txtConfirmPassword };
+
+            for (int i = 0; i < txt.Length; i++)
+            {
+                txt[i].Location = new Point(220, 85 + i * 45);
+                txt[i].Size = new Size(280, 25);
+                Controls.Add(txt[i]);
+            }
+
+            txtPassword.UseSystemPasswordChar = true;
+            txtConfirmPassword.UseSystemPasswordChar = true;
+
+            dtpBirthDate = new DateTimePicker();
+            dtpBirthDate.Location = new Point(220, 220);
+            dtpBirthDate.Size = new Size(280, 25);
+            Controls.Add(dtpBirthDate);
+
+            rdoNam = new RadioButton();
+            rdoNam.Text = "Nam";
+            rdoNam.Location = new Point(220, 268);
+            rdoNam.AutoSize = true;
+            Controls.Add(rdoNam);
+
+            rdoNu = new RadioButton();
+            rdoNu.Text = "Nữ";
+            rdoNu.Location = new Point(290, 268);
+            rdoNu.AutoSize = true;
+            Controls.Add(rdoNu);
+
+            chkTerms = new CheckBox();
+            chkTerms.Text = "Tôi đồng ý với điều khoản dịch vụ";
+            chkTerms.Location = new Point(220, 310);
+            chkTerms.AutoSize = true;
+            Controls.Add(chkTerms);
+
+            btnDangKy = new Button();
+            btnDangKy.Text = "Đăng Ký";
+            btnDangKy.Location = new Point(220, 355);
+            btnDangKy.Size = new Size(120, 40);
+            btnDangKy.Click += btnDangKy_Click;
+            Controls.Add(btnDangKy);
+
+            btnLamMoi = new Button();
+            btnLamMoi.Text = "Làm Mới";
+            btnLamMoi.Location = new Point(380, 355);
+            btnLamMoi.Size = new Size(120, 40);
+            btnLamMoi.Click += btnLamMoi_Click;
+            Controls.Add(btnLamMoi);
+
+            epCheck = new ErrorProvider();
+        }
+        private void btnDangKy_Click(object sender, EventArgs e)
+        {
+            epCheck.Clear();
+
+            bool hopLe = true;
+
+            if (string.IsNullOrWhiteSpace(txtUsername.Text))
+            {
+                epCheck.SetError(
+                    txtUsername,
+                    "Tên đăng nhập không được để trống!"
+                );
+
+                hopLe = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtPassword.Text))
+            {
+                epCheck.SetError(
+                    txtPassword,
+                    "Mật khẩu không được để trống!"
+                );
+
+                hopLe = false;
+            }
+
+            if (txtPassword.Text != txtConfirmPassword.Text)
+            {
+                epCheck.SetError(
+                    txtConfirmPassword,
+                    "Mật khẩu nhập lại không khớp!"
+                );
+
+                hopLe = false;
+            }
+
+            DateTime ngaySinh = dtpBirthDate.Value;
+
+            int tuoi = DateTime.Now.Year - ngaySinh.Year;
+
+            if (ngaySinh.Date > DateTime.Now.AddYears(-tuoi).Date)
+            {
+                tuoi--;
+            }
+
+            if (tuoi < 18)
+            {
+                epCheck.SetError(
+                    dtpBirthDate,
+                    "Bạn phải đủ 18 tuổi!"
+                );
+
+                hopLe = false;
+            }
+
+            if (!chkTerms.Checked)
+            {
+                epCheck.SetError(
+                    chkTerms,
+                    "Bạn phải đồng ý với điều khoản dịch vụ!"
+                );
+
+                hopLe = false;
+            }
+
+            if (hopLe)
+            {
+                MessageBox.Show(
+                    "Đăng ký tài khoản thành công!",
+                    "Thông báo",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
+            }
+        }
+
+        private void btnLamMoi_Click(object sender, EventArgs e)
+        {
+            txtUsername.Clear();
+            txtPassword.Clear();
+            txtConfirmPassword.Clear();
+
+            dtpBirthDate.Value = DateTime.Now;
+
+            rdoNam.Checked = false;
+            rdoNu.Checked = false;
+
+            chkTerms.Checked = false;
+
+            epCheck.Clear();
+
+            txtUsername.Focus();
+        }
+        private void Form1_Load(object sender, EventArgs e)
+        {
+        }
+    }
+}
